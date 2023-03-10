@@ -31,11 +31,36 @@ const useStyles = makeStyles((theme) => ({
 function NewsList() {
     const classes = useStyles();
     const [news, setNews] = useState([]);
+    const [country, setCountry] = useState('in');
+    const [category, setCategory] = useState('general');
+    const [searchTerm, setSearchTerm] = useState('');
+
+    useEffect(() => {
+        const apiKey = process.env.REACT_APP_NEWS_API_KEY;
+        const url = `https://newsapi.org/v2/top-headlines?category=${category}&country=${country}&q=${searchTerm}&apiKey=${apiKey}`;
+        // console.log(sortBy);
+        axios
+            .get(url)
+            .then((response) => setNews(response.data.articles))
+            .catch((error) => console.error(error));
+    }, [country, category, searchTerm]);
+
+    const handleCountryChange = (event) => {
+        setCountry(event.target.value);
+    };
+
+    const handleCategoryChange = (event) => {
+        setCategory(event.target.value);
+    };
+
+    const handleSearchTermChange = (event) => {
+        setSearchTerm(event.target.value);
+    };
 
     useEffect(() => {
         axios
             .get(
-                `https://newsapi.org/v2/top-headlines?country=us&apiKey=${process.env.REACT_APP_NEWS_API_KEY}`
+                `https://newsapi.org/v2/top-headlines?country=in&apiKey=${process.env.REACT_APP_NEWS_API_KEY}`
             )
             .then((response) => {
                 setNews(response.data.articles);
@@ -47,6 +72,35 @@ function NewsList() {
 
     return (
         <div>
+            <div>
+                <label>
+                    Country:
+                    <select value={country} onChange={handleCountryChange}>
+                        <option value="in">India</option>
+                        <option value="us">United States</option>
+                        <option value="gb">United Kingdom</option>
+                        <option value="ca">Canada</option>
+                        <option value="au">Australia</option>
+                    </select>
+                </label>
+                <label>
+                    Category:
+                    <select value={category} onChange={handleCategoryChange}>
+                        <option value="general">General</option>
+                        <option value="business">Business</option>
+                        <option value="entertainment">Entertainment</option>
+                        <option value="health">Health</option>
+                        <option value="science">Science</option>
+                        <option value="sports">Sports</option>
+                        <option value="technology">Technology</option>
+                    </select>
+                </label>
+                <label>
+                    Search:
+                    <input type="text" value={searchTerm} onChange={handleSearchTermChange} />
+                </label>
+            </div>
+
             {news.map((article, index) => (
                 <Card className={classes.card} key={index}>
                     <div className={classes.cardDetails}>
